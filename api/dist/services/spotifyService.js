@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.refreshAccessToken = exports.getAccessToken = exports.generateAuthorizeURL = void 0;
+exports.getPlayerDevices = exports.refreshAccessToken = exports.getAccessToken = exports.generateAuthorizeURL = void 0;
 const spotify_web_api_node_1 = __importDefault(require("spotify-web-api-node"));
 const spotifyApi = new spotify_web_api_node_1.default({
     clientId: process.env.SPOTIFY_CLIENT_ID,
@@ -36,3 +36,15 @@ const refreshAccessToken = () => __awaiter(void 0, void 0, void 0, function* () 
     return data.body.access_token;
 });
 exports.refreshAccessToken = refreshAccessToken;
+const getPlayerDevices = (accessToken) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        spotifyApi.setAccessToken(accessToken);
+        const response = yield spotifyApi.getMyDevices();
+        return response.body.devices;
+    }
+    catch (error) {
+        console.error('Error fetching player devices:', error);
+        throw new Error('Failed to fetch player devices');
+    }
+});
+exports.getPlayerDevices = getPlayerDevices;

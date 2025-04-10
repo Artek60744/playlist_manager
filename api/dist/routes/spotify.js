@@ -8,4 +8,5 @@ const spotifyController_1 = require("../controllers/spotifyController");
 const router = express_1.default.Router();
 router.get('/login', spotifyController_1.login);
 router.get('/callback', spotifyController_1.callback);
+router.get('/player/devices', spotifyController_1.getPlayerStatus);
 exports.default = router;

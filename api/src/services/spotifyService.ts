@@ -22,3 +22,14 @@ export const refreshAccessToken = async () => {
   spotifyApi.setAccessToken(data.body.access_token);
   return data.body.access_token;
 };
+
+export const getPlayerDevices = async (accessToken: string) => {
+  try {
+    spotifyApi.setAccessToken(accessToken);
+    const response = await spotifyApi.getMyDevices();
+    return response.body.devices;
+  } catch (error) {
+    console.error('Error fetching player devices:', error);
+    throw new Error('Failed to fetch player devices');
+  }
+};

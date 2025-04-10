@@ -9,10 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.callback = exports.login = void 0;
+exports.getPlayerStatus = exports.callback = exports.login = void 0;
 const spotifyService_1 = require("../services/spotifyService");
 const login = (req, res) => {
-    const scopes = ['user-read-private', 'user-read-email'];
+    const scopes = ['user-read-private',
+        'user-read-email',
+        'user-read-playback-state',
+        'user-read-currently-playing'];
     const authorizeURL = (0, spotifyService_1.generateAuthorizeURL)(scopes);
     res.redirect(authorizeURL);
 };
@@ -29,3 +32,19 @@ const callback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.callback = callback;
+const getPlayerStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const accessToken = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1]; // Récupère le token depuis le header Authorization
+    if (!accessToken) {
+        return res.status(401).json({ error: 'Access token is required' });
+    }
+    try {
+        const devices = yield (0, spotifyService_1.getPlayerDevices)(accessToken);
+        res.json({ devices });
+    }
+    catch (error) {
+        console.error('Error fetching player status:', error);
+        res.status(500).json({ error: 'Failed to fetch player status' });
+    }
+});
+exports.getPlayerStatus = getPlayerStatus;
