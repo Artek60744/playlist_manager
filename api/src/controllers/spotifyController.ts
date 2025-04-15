@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generateAuthorizeURL, getAccessToken, getPlayerDevices } from '../services/spotifyService';
+import { generateAuthorizeURL, generateAuthorizeURL_Window, getAccessToken, getPlayerDevices } from '../services/spotifyService';
 
 export const login = (req: Request, res: Response) => {
   const scopes = ['user-read-private',
@@ -7,6 +7,18 @@ export const login = (req: Request, res: Response) => {
       'user-read-playback-state',
        'user-read-currently-playing'];
   const authorizeURL = generateAuthorizeURL(scopes);
+  console.log(authorizeURL);
+  res.redirect(authorizeURL);
+};
+
+export const login_window = (req: Request, res: Response) => {
+  const scopes = ['user-read-private',
+     'user-read-email',
+      'user-read-playback-state',
+       'user-read-currently-playing'];
+  const authorizeURL = generateAuthorizeURL_Window(scopes);
+  console.log(authorizeURL);
+  // Redirige vers l'URL d'autorisation de Spotify
   res.redirect(authorizeURL);
 };
 
@@ -16,6 +28,33 @@ export const callback = async (req: Request, res: Response) => {
   try {
     const accessToken = await getAccessToken(code);
     res.json({ accessToken });
+
+  } catch (error) {
+    console.error('Error during authentication:', error);
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+};
+
+
+export const callback_window = async (req: Request, res: Response) => {
+  const code = req.query.code as string;
+
+  try {
+    const accessToken = await getAccessToken(code, true);
+    console.log('Access Token:', accessToken);
+    // HTML pour envoyer le token à la fenêtre principale
+    const html = `
+    <html>
+      <body>
+        <script>
+          window.opener.postMessage({ accessToken: "${accessToken}" }, "*");
+          window.close();
+        </script>
+      </body>
+    </html>
+    `;
+    res.send(html);
+
   } catch (error) {
     console.error('Error during authentication:', error);
     res.status(500).json({ error: 'Authentication failed' });
