@@ -1,0 +1,52 @@
+# Node.js
+my-front/node_modules/
+api/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js (pour my-front)
+my-front/.next/
+my-front/out/
+my-front/build/
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+my-front/.env
+my-front/.env.local
+my-front/.env.*.local
+api/.env
+api/.env.local
+api/.env.*.local
+
+# Cache files
+my-front/.cache/
+my-front/dist/
+my-front/.rscinfo
+my-front/.tsbuildinfo
+api/.cache/
+api/dist/
+api/.tsbuildinfo
+
+# Static files générés par Next.js (pour my-front)
+my-front/public/static/
+my-front/*.svg
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
