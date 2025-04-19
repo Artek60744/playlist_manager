@@ -33,6 +33,12 @@ export default function LoginPage() {
         localStorage.setItem("authToken", accessToken);
         console.log("Token reçu :", accessToken);
 
+        // Configure un timeout pour supprimer le token après 1 heure
+        setTimeout(() => {
+          localStorage.removeItem("authToken");
+          console.log("Token expiré et supprimé.");
+        }, 3600000); // 1 heure en millisecondes
+
         // Supprime l'écouteur une fois le message reçu
         window.removeEventListener("message", handleMessage);
 
