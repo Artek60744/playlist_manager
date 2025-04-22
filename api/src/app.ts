@@ -8,7 +8,13 @@ dotenv.config({ path: __dirname + '/../.env' });
 import spotifyRoutes from './routes/spotify';
 
 const app = express();
-app.use(cors());
+// Configuration CORS pour permettre les requêtes de localhost:3000
+const corsOptions = {
+    origin: 'http://localhost:3000',  // Permet uniquement les requêtes venant de cette origine
+    credentials: true,               // Permet l'envoi de cookies et autres informations d'authentification
+  };
+  
+  app.use(cors(corsOptions));  // Appliquer la configuration CORS
 app.use(express.json());
 
 // Routes Spotify

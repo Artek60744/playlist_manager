@@ -47,7 +47,7 @@ export const callback_window = async (req: Request, res: Response) => {
     <html>
       <body>
         <script>
-          window.opener.postMessage({ accessToken: "${accessToken}" }, "*");
+          window.opener.postMessage({ accessToken: "${accessToken}", expiresIn: 5 }, "*");
           window.close();
         </script>
       </body>
