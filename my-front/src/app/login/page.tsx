@@ -32,11 +32,11 @@ export default function LoginPage() {
 
       console.log("Données reçues :", event.data); // Ajoutez ce log pour vérifier les données reçues
 
-      const { accessToken, expiresIn } = event.data; // `expiresIn` est la durée de validité du token en secondes
-      if (accessToken) {
-        console.log("Appel de setAuthToken avec :", accessToken, expiresIn);
-        // Utilise le contexte pour stocker le token et planifier le rafraîchissement
-        setAuthToken(accessToken, expiresIn); // Convertir `expiresIn` en nombre
+      const { accessToken, refreshToken, expiresIn } = event.data; // Récupère les deux tokens et expiresIn
+      if (accessToken && refreshToken) {
+        console.log("Appel de setAuthToken avec :", accessToken, refreshToken, expiresIn);
+        // Utilise le contexte pour stocker les tokens et planifier le rafraîchissement
+        setAuthToken(accessToken, refreshToken, expiresIn); // Assurez-vous que setAuthToken gère le refreshToken
 
         // Supprime l'écouteur une fois le message reçu
         window.removeEventListener("message", handleMessage);

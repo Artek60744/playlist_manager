@@ -1,9 +1,10 @@
 import express from 'express';
-import { login, login_window, callback, callback_window, getPlayerStatus } from '../controllers/spotifyController';
+import { login, refreshToken, login_window, callback, callback_window, getPlayerStatus } from '../controllers/spotifyController';
 
 const router = express.Router();
 
 router.get('/login', login);
+router.get('/refreshToken', refreshToken);
 router.get('/login_window', login_window);
 router.get('/callback', callback);
 router.get('/callback_window', callback_window);

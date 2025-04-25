@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generateAuthorizeURL, generateAuthorizeURL_Window, getAccessToken, getPlayerDevices } from '../services/spotifyService';
+import { refreshAccessToken, generateAuthorizeURL, generateAuthorizeURL_Window, getAccessToken, getPlayerDevices } from '../services/spotifyService';
 
 export const login = (req: Request, res: Response) => {
   const scopes = ['user-read-private',
@@ -9,6 +9,22 @@ export const login = (req: Request, res: Response) => {
   const authorizeURL = generateAuthorizeURL(scopes);
   console.log(authorizeURL);
   res.redirect(authorizeURL);
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  const old_refreshToken = req.query.refreshToken as string;
+
+  if (!old_refreshToken) {
+    return res.status(400).json({ error: 'Refresh token is required' });
+  }
+
+  try {
+    const { accessToken, refreshToken, expiresIn } = await refreshAccessToken(old_refreshToken);
+    res.json({ accessToken, refreshToken, expiresIn }); // Inclure expiresIn dans la réponse
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    res.status(500).json({ error: 'Failed to refresh token' });
+  }
 };
 
 export const login_window = (req: Request, res: Response) => {
@@ -26,8 +42,8 @@ export const callback = async (req: Request, res: Response) => {
   const code = req.query.code as string;
 
   try {
-    const accessToken = await getAccessToken(code);
-    res.json({ accessToken });
+    const { accessToken, refreshToken, expiresIn } = await getAccessToken(code);
+    res.json({ accessToken, refreshToken, expiresIn });
 
   } catch (error) {
     console.error('Error during authentication:', error);
@@ -40,14 +56,18 @@ export const callback_window = async (req: Request, res: Response) => {
   const code = req.query.code as string;
 
   try {
-    const accessToken = await getAccessToken(code, true);
-    console.log('Access Token:', accessToken);
+    const { accessToken, refreshToken, expiresIn } = await getAccessToken(code, true); // Récupère les deux tokens
+    // console.log('Access Token:', accessToken);
     // HTML pour envoyer le token à la fenêtre principale
     const html = `
     <html>
       <body>
         <script>
-          window.opener.postMessage({ accessToken: "${accessToken}", expiresIn: 5 }, "*");
+          window.opener.postMessage({ 
+            accessToken: "${accessToken}", 
+            refreshToken: "${refreshToken}", 
+            expiresIn: ${expiresIn} 
+          }, "*");
           window.close();
         </script>
       </body>
