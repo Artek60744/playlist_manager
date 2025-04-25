@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
+
 import svgLogo from "/public/spotify.svg";
 import styles from "@/styles/login.module.css";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
+  const { setAuthToken } = useContext(AuthContext); // Utiliser le contexte
 
   const handleLogin = () => {
     const apiUri = process.env.API_URI || "http://127.0.0.1:5000"; // Valeur par défaut si API_URI n'est pas défini
@@ -27,23 +30,19 @@ export default function LoginPage() {
         return;
       }
 
-      const { accessToken } = event.data;
-      if (accessToken) {
-        // Stocke le token dans localStorage
-        localStorage.setItem("authToken", accessToken);
-        console.log("Token reçu :", accessToken);
+      console.log("Données reçues :", event.data); // Ajoutez ce log pour vérifier les données reçues
 
-        // Configure un timeout pour supprimer le token après 1 heure
-        setTimeout(() => {
-          localStorage.removeItem("authToken");
-          console.log("Token expiré et supprimé.");
-        }, 3600000); // 1 heure en millisecondes
+      const { accessToken, expiresIn } = event.data; // `expiresIn` est la durée de validité du token en secondes
+      if (accessToken) {
+        console.log("Appel de setAuthToken avec :", accessToken, expiresIn);
+        // Utilise le contexte pour stocker le token et planifier le rafraîchissement
+        setAuthToken(accessToken, expiresIn); // Convertir `expiresIn` en nombre
 
         // Supprime l'écouteur une fois le message reçu
         window.removeEventListener("message", handleMessage);
 
         // Recharge la page actuelle
-        window.location.reload();
+        //window.location.reload();
       }
     };
 
