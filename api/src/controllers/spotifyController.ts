@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { refreshAccessToken, generateAuthorizeURL, generateAuthorizeURL_Window, getAccessToken, getPlayerDevices } from '../services/spotifyService';
+import { refreshAccessToken, generateAuthorizeURL, generateAuthorizeURL_Window, getAccessToken, getPlayerDevices, getUserPlaylists as fetchUserPlaylists } from '../services/spotifyService';
 
 export const login = (req: Request, res: Response) => {
   const scopes = ['user-read-private',
@@ -94,5 +94,21 @@ export const getPlayerStatus = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching player status:', error);
     res.status(500).json({ error: 'Failed to fetch player status' });
+  }
+};
+
+export const getUserPlaylists = async (req: Request, res: Response) => {
+  const accessToken = req.headers.authorization?.split(' ')[1]; // Récupère le token depuis le header Authorization
+
+  if (!accessToken) {
+    return res.status(401).json({ error: 'Access token is required' });
+  }
+
+  try {
+    const playlists = await fetchUserPlaylists(accessToken);
+    res.json({ playlists });
+  } catch (error) {
+    console.error('Error fetching user playlists:', error);
+    res.status(500).json({ error: 'Failed to fetch user playlists' });
   }
 };

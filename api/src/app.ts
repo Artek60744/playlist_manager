@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 dotenv.config({ path: __dirname + '/../.env' });
 
 import spotifyRoutes from './routes/spotify';
+import quizzRoutes from './routes/quizz';
+
 
 const app = express();
 // Configuration CORS pour permettre les requêtes de localhost:3000
@@ -20,6 +22,8 @@ app.use(express.json());
 // Routes Spotify
 app.use('/spotify', spotifyRoutes);
 
+// Routes Quizz
+app.use('/quizz', quizzRoutes);
 
 
 const PORT = process.env.PORT || 5000;

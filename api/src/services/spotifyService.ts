@@ -20,7 +20,6 @@ export const generateAuthorizeURL_Window = (scopes: string[]) => {
   return spotifyApi.createAuthorizeURL(scopes);
 };
 
-
 export const getAccessToken = async (code: string, useWindow = false) => {
   const redirectUri = useWindow
     ? process.env.SPOTIFY_REDIRECT_URI_WINDOW
@@ -65,5 +64,18 @@ export const getPlayerDevices = async (accessToken: string) => {
   } catch (error) {
     console.error('Error fetching player devices:', error);
     throw new Error('Failed to fetch player devices');
+  }
+};
+
+export const getUserPlaylists = async (accessToken: string) => {
+  try {
+    const spotifyApi = getSpotifyApi(process.env.SPOTIFY_REDIRECT_URI);
+    spotifyApi.setAccessToken(accessToken);
+
+    const response = await spotifyApi.getUserPlaylists(); // Utilisation de la méthode dédiée
+    return response.body.items; // Retourne les playlists
+  } catch (error) {
+    console.error('Error fetching user playlists:', error);
+    throw new Error('Failed to fetch user playlists');
   }
 };
