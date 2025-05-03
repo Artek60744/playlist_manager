@@ -19,50 +19,46 @@ export const SpotifyPlayerProvider = ({ children }: { children: React.ReactNode 
   const [player, setPlayer] = useState<Spotify.Player | null>(null);
 
   useEffect(() => {
-  const token = localStorage.getItem("authToken");
-  if (!token) return;
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
 
-  const script = document.createElement("script");
-  script.src = "https://sdk.scdn.co/spotify-player.js";
-  script.async = true;
+    const script = document.createElement("script");
+    script.src = "https://sdk.scdn.co/spotify-player.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-  script.onload = () => {
-    if (window.Spotify) {
-      const spotifyPlayer = new window.Spotify.Player({
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const spotifyPlayer = new Spotify.Player({
         name: "Blind Test Player",
         getOAuthToken: cb => cb(token),
         volume: 0.5,
       });
 
-      spotifyPlayer.addListener("ready", ({ device_id }: { device_id: string }) => {
+      spotifyPlayer.addListener("ready", ({ device_id }) => {
         console.log("✅ Spotify Player prêt avec ID :", device_id);
         setDeviceId(device_id);
       });
 
-      spotifyPlayer.addListener("initialization_error", ({ message }: { message: string }) =>
+      spotifyPlayer.addListener("initialization_error", ({ message }) =>
         console.error("Erreur init SDK :", message)
       );
 
-      spotifyPlayer.addListener("authentication_error", ({ message }: { message: string }) =>
+      spotifyPlayer.addListener("authentication_error", ({ message }) =>
         console.error("Erreur d'authentification :", message)
       );
 
-      spotifyPlayer.addListener("account_error", ({ message }: { message: string }) =>
+      spotifyPlayer.addListener("account_error", ({ message }) =>
         console.error("Erreur de compte :", message)
       );
 
-      spotifyPlayer.addListener("playback_error", ({ message }: { message: string }) =>
+      spotifyPlayer.addListener("playback_error", ({ message }) =>
         console.error("Erreur de lecture :", message)
       );
 
       spotifyPlayer.connect();
       setPlayer(spotifyPlayer);
-    }
-  };
-
-  document.body.appendChild(script);
-}, []);
-
+    };
+  }, []);
 
   return (
     <SpotifyContext.Provider value={{ deviceId, player }}>

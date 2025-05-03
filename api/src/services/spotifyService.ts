@@ -79,3 +79,24 @@ export const getUserPlaylists = async (accessToken: string) => {
     throw new Error('Failed to fetch user playlists');
   }
 };
+
+export const fetchPlaylistTracks = async (accessToken: string, playlistId: string) => {
+  try {
+    const spotifyApi = getSpotifyApi(process.env.SPOTIFY_REDIRECT_URI);
+    spotifyApi.setAccessToken(accessToken);
+    const response = await spotifyApi.getPlaylistTracks(playlistId);
+
+    // Utilisation de response.body.items au lieu de response.data.items
+    return response.body.items.map((item: any) => ({
+      trackName: item.track.name,
+      artist: item.track.artists.map((artist: any) => artist.name).join(', '),
+      album: item.track.album.name,
+      imageUrl: item.track.album.images[0]?.url,
+      duration: item.track.duration_ms,
+      previewUrl: item.track.preview_url,
+    }));
+  } catch (error) {
+    console.error('Error fetching playlist tracks:', error);
+    throw new Error('Failed to fetch playlist tracks');
+  }
+};

@@ -1,11 +1,17 @@
 import { Request, Response } from 'express';
-import { refreshAccessToken, generateAuthorizeURL, generateAuthorizeURL_Window, getAccessToken, getPlayerDevices, getUserPlaylists as fetchUserPlaylists } from '../services/spotifyService';
+import { refreshAccessToken, generateAuthorizeURL, generateAuthorizeURL_Window, getAccessToken, getPlayerDevices, getUserPlaylists as fetchUserPlaylists, fetchPlaylistTracks } from '../services/spotifyService';
 
 export const login = (req: Request, res: Response) => {
-  const scopes = ['user-read-private',
-     'user-read-email',
-      'user-read-playback-state',
-       'user-read-currently-playing'];
+  const scopes = [
+    "streaming",
+    "user-read-private",
+    "user-read-email",
+    "user-read-playback-state",
+    "user-read-currently-playing",
+    "user-modify-playback-state",
+    "app-remote-control"
+  ];
+
   const authorizeURL = generateAuthorizeURL(scopes);
   console.log(authorizeURL);
   res.redirect(authorizeURL);
@@ -28,10 +34,18 @@ export const refreshToken = async (req: Request, res: Response) => {
 };
 
 export const login_window = (req: Request, res: Response) => {
-  const scopes = ['user-read-private',
-     'user-read-email',
-      'user-read-playback-state',
-       'user-read-currently-playing'];
+  // Redirige vers l'URL d'autorisation de Spotify
+  const scopes = [
+    "streaming",
+    "user-read-private",
+    "user-read-email",
+    "user-read-playback-state",
+    "user-read-currently-playing",
+    "user-modify-playback-state",
+    "app-remote-control",
+    "playlist-read-private",
+    "playlist-read-collaborative",
+  ];
   const authorizeURL = generateAuthorizeURL_Window(scopes);
   console.log(authorizeURL);
   // Redirige vers l'URL d'autorisation de Spotify
@@ -110,5 +124,26 @@ export const getUserPlaylists = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching user playlists:', error);
     res.status(500).json({ error: 'Failed to fetch user playlists' });
+  }
+};
+
+export const getPlaylistTracks = async (req: Request, res: Response) => {
+  const accessToken = req.headers.authorization?.split(' ')[1]; // Récupère le token depuis le header Authorization
+  const playlistId = req.params.id; // Récupère l'ID de la playlist depuis les paramètres de la requête
+
+  if (!accessToken) {
+    return res.status(401).json({ error: 'Access token is required' });
+  }
+
+  if (!playlistId) {
+    return res.status(400).json({ error: 'Playlist ID is required' });
+  }
+
+  try {
+    const tracks = await fetchPlaylistTracks(accessToken, playlistId); // Appelle le service pour récupérer les morceaux
+    res.json({ tracks });
+  } catch (error) {
+    console.error('Error fetching playlist tracks:', error);
+    res.status(500).json({ error: 'Failed to fetch playlist tracks' });
   }
 };
