@@ -4,10 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-import svgLogo from "/public/spotify.svg";
+import svgLogo from "@../public/spotify-logo.svg";
 import styles from "@/styles/login.module.css";
 
-export default function QuizzPage() {
+export default function PlaylistPage() {
   interface Playlist {
     id: string;
     name: string;
