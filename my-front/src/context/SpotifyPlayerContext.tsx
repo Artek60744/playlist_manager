@@ -5,11 +5,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface SpotifyContextType {
   deviceId: string | null;
   player: Spotify.Player | null;
+  isPlayerReady: boolean; // Ajout de la propriété isPlayerReady
 }
 
 const SpotifyContext = createContext<SpotifyContextType>({
   deviceId: null,
   player: null,
+  isPlayerReady: false, // Valeur par défaut
 });
 
 export const useSpotifyPlayer = () => useContext(SpotifyContext);
@@ -17,26 +19,23 @@ export const useSpotifyPlayer = () => useContext(SpotifyContext);
 export const SpotifyPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [player, setPlayer] = useState<Spotify.Player | null>(null);
+  const [isPlayerReady, setIsPlayerReady] = useState(false); // Nouvel état
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) return;
 
-    const script = document.createElement("script");
-    script.src = "https://sdk.scdn.co/spotify-player.js";
-    script.async = true;
-    document.body.appendChild(script);
-
     window.onSpotifyWebPlaybackSDKReady = () => {
       const spotifyPlayer = new Spotify.Player({
         name: "Blind Test Player",
-        getOAuthToken: cb => cb(token),
+        getOAuthToken: (cb) => cb(token),
         volume: 0.5,
       });
 
       spotifyPlayer.addListener("ready", ({ device_id }) => {
         console.log("✅ Spotify Player prêt avec ID :", device_id);
         setDeviceId(device_id);
+        setIsPlayerReady(true);
       });
 
       spotifyPlayer.addListener("initialization_error", ({ message }) =>
@@ -58,10 +57,15 @@ export const SpotifyPlayerProvider = ({ children }: { children: React.ReactNode 
       spotifyPlayer.connect();
       setPlayer(spotifyPlayer);
     };
+
+    const script = document.createElement("script");
+    script.src = "https://sdk.scdn.co/spotify-player.js";
+    script.async = true;
+    document.body.appendChild(script);
   }, []);
 
   return (
-    <SpotifyContext.Provider value={{ deviceId, player }}>
+    <SpotifyContext.Provider value={{ deviceId, player, isPlayerReady }}>
       {children}
     </SpotifyContext.Provider>
   );

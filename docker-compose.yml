@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  api:
+    build: ./api
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      # Ajoutez ici vos variables d'environnement nécessaires à l'API
+    volumes:
+      - ./api:/app
+    restart: unless-stopped
+
+  front:
+    build: ./my-front
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      # Ajoutez ici vos variables d'environnement nécessaires au front
+    volumes:
+      - ./my-front:/app
+    depends_on:
+      - api
+    restart: unless-stopped

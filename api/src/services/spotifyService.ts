@@ -93,7 +93,7 @@ export const fetchPlaylistTracks = async (accessToken: string, playlistId: strin
       album: item.track.album.name,
       imageUrl: item.track.album.images[0]?.url,
       duration: item.track.duration_ms,
-      previewUrl: item.track.preview_url,
+      url: item.track.uri,
     }));
   } catch (error) {
     console.error('Error fetching playlist tracks:', error);
